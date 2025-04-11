@@ -31,5 +31,4 @@ This project is shared for **review purposes only**.
 Usage, reproduction, or distribution is strictly prohibited without the author's **written consent**.
 
 © 2024 Zahra Salekshahrezaee. All rights reserved.  
-For licensing inquiries, contact: zsalekshahre2018@fau.edu
 
