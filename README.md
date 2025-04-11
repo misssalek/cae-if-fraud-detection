@@ -23,7 +23,8 @@ pip install -r requirements.txt
 python main.py
 ```
 
-The CAE is trained using 5-fold cross-validation. The best-performing encoder is then used to generate latent features for anomaly detection using Isolation Forest.
+The CAE is trained using 5-fold cross-validation. The encoder with lowest final reconstruction error is then used to generate latent features for anomaly detection using Isolation Forest.
+
 
 ## ⚠️ Notice
 
