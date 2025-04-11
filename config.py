@@ -12,6 +12,7 @@ tf.random.set_seed(SEED)
 
 batch_size = 128
 learning_rate = 0.001
-train_step = 150
+train_step = 150#5000
 SAVE_DIR = "./saved_weights_biases"
 os.makedirs(SAVE_DIR, exist_ok=True)
+

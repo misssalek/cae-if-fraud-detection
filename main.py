@@ -55,43 +55,58 @@ print(f"Best model found at fold {best_fold} with loss {best_tr_loss:.6f}")
 weights, biases = load_weights_and_biases(best_fold)
 
 # Run Isolation Forest with encoder output
+
 outlier_fraction = 0.002
-all_auc_roc_scores = []
-all_auprc_scores = []
-all_metrics_list = []
 
-for i in range(1, 6):
-    print(f"Starting Iteration {i}...")
+auc_roc_scores = []
+auprc_scores = []
+metrics_list = []
+
+load_weights_and_biases(best_fold)
+iForest = IForest(contamination=outlier_fraction)
     
-    iForest = IForest(contamination=outlier_fraction)
-    test_pred = encoder(tx_test)
-    train_pred = encoder(tx_train)
+test_pred = encoder(tx_test)
+train_pred = encoder(tx_train)
+
+    # Fit the Isolation Forest model
+iForest.fit(train_pred)
+
+    # Get the anomaly scores
+test_scores = iForest.decision_function(test_pred)
+
+   # Predict anomalies
+y_pred=iForest.predict(test_pred)
+
+    # Calculate AUC-ROC
+auc_roc = roc_auc_score(y_test, test_scores)
+auc_roc_scores.append(auc_roc)
+
+    # Calculate AUPRC
+auprc = average_precision_score(y_test, test_scores)
+auprc_scores.append(auprc)
     
-    iForest.fit(train_pred)
-    test_scores = iForest.decision_function(test_pred)
-    y_pred = iForest.predict(test_pred)
+
+
+    # Calculate metrics
+metrics = classification_metrics(y_test, y_pred)
+metrics_list.append(metrics)
+
+
+print  (f"AUC-ROC: {auc_roc:.4f}")
+print  (f"AUPRC: {auprc:.4f}")
+
+for metric, value in metrics.items():
+        print  (f"{metric}: {value:.4f}")
+print  ("-" * 30)
     
-    auc_roc = roc_auc_score(y_test, test_scores)
-    auprc = average_precision_score(y_test, test_scores)
-    metrics = classification_metrics(y_test, y_pred)
 
-    all_auc_roc_scores.append(auc_roc)
-    all_auprc_scores.append(auprc)
-    all_metrics_list.append(metrics)
+# Calculate and print  average metrics
+avg_auc_roc = sum(auc_roc_scores) / len(auc_roc_scores)
+avg_auprc = sum(auprc_scores) / len(auprc_scores)
+avg_metrics = {metric: sum([m[metric] for m in metrics_list]) / len(metrics_list) for metric in metrics_list[0].keys()}
 
-    print(f"AUC-ROC: {auc_roc:.4f}")
-    print(f"AUPRC: {auprc:.4f}")
-    for metric, value in metrics.items():
-        print(f"{metric}: {value:.4f}")
-    print("-" * 30)
-
-avg_auc_roc = np.mean(all_auc_roc_scores)
-avg_auprc = np.mean(all_auprc_scores)
-avg_metrics = {metric: np.mean([m[metric] for m in all_metrics_list]) for metric in all_metrics_list[0].keys()}
-
-print("\n=== Final Average Metrics Across Iterations ===")
-print(f"Average AUC-ROC: {avg_auc_roc:.4f}")
-print(f"Average AUPRC: {avg_auprc:.4f}")
+print  (f"Average AUC-ROC: {avg_auc_roc:.4f}")
+print  (f"Average AUPRC: {avg_auprc:.4f}")
 for metric, value in avg_metrics.items():
-    print(f"Average {metric}: {value:.4f}")
-print('******************************************')
+        print   (f"{metric}: {value:.4f}")
+
